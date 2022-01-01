@@ -14,7 +14,7 @@ contract ERC20 {
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 }
 
-contract UltraViolet is Ownable, ERC20{
+contract Token is Ownable, ERC20{
     uint internal _totalSupply;
     mapping(address => uint) internal _balances;
     mapping(address => mapping(address => uint)) internal _allowed;
@@ -51,6 +51,7 @@ contract UltraViolet is Ownable, ERC20{
     }
 
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+        require(_allowed[from][msg.sender] >= tokens);
         require(_balances[from] >= tokens);
         require(to != address(0));
 
@@ -64,11 +65,7 @@ contract UltraViolet is Ownable, ERC20{
     }
 }
 
-contract MintableToken is UltraViolet {
-    string public constant name = "Ultra Violet";
-    string public constant symbol = "UVT";
-    uint8 public constant decimals = 18;
-
+contract MintableToken is Token {
     event Mint(address indexed to, uint tokens);
 
     function mint(address to, uint tokens) onlyOwner public {
@@ -77,4 +74,10 @@ contract MintableToken is UltraViolet {
 
         emit Mint(to, tokens);
     }
+}
+
+contract UltraViolet is MintableToken {
+    string public constant name = "Ultra Violet";
+    string public constant symbol = "UVT";
+    uint8 public constant decimals = 18;
 }
